@@ -5,6 +5,15 @@ import ru.tinkoff.invest.openapi.model.streaming.CandleInterval;
 
 import java.util.Arrays;
 
+/**
+ * В данном классе происходит преобразование торговых параметров
+ * и проверка агрегационного параметра на валидныи интервал
+ *
+ * @author Mikhail Khrychev
+ * @version  1.0.0
+ * @since 30.04.2021
+ */
+
 public class TradingParameters {
     @NotNull
     public final String ssoToken;

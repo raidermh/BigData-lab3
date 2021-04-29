@@ -2,7 +2,6 @@ package ru.tinkoff.invest.openapi.example;
 
 import io.reactivex.rxjava3.core.Flowable;
 import ru.tinkoff.invest.openapi.OpenApi;
-import ru.tinkoff.invest.openapi.model.rest.CurrencyPosition;
 import ru.tinkoff.invest.openapi.model.rest.MarketInstrument;
 import ru.tinkoff.invest.openapi.model.rest.SandboxRegisterRequest;
 import ru.tinkoff.invest.openapi.model.streaming.StreamingRequest;
@@ -20,6 +19,20 @@ public class App {
 
     static org.slf4j.Logger logger;
 
+    /**
+     * Вход в программу, в Main передаеся 4 аргумента, далее создается подписка на изменение
+     * инфо свечей, данные из Streaming API записываются в фаил лога
+     *
+     * @param args [1] Open Api Tinkoff personal token,
+     *             [2] Investment ticker,
+     *             [3] Aggregation Interval,
+     *             [4] Is Sandbox (true or false)
+     *
+     * @author Mikhail Khrychev
+     * @version  1.0.0
+     * @since 30.04.2021
+     */
+
     public static void main(String[] args) {
         try {
             logger = initLogger();
@@ -28,6 +41,7 @@ public class App {
             return;
         }
 
+        //Извлечение торговых парамеров
         final TradingParameters parameters;
         try {
             parameters = extractParams(args);
@@ -36,6 +50,7 @@ public class App {
             return;
         }
 
+        //Создание подключения к Open API
         try (final OpenApi api = new OkHttpOpenApi(parameters.ssoToken, parameters.sandboxMode)) {
             logger.info("Создаём подключение... ");
             if (api.isSandboxMode()) {
@@ -43,6 +58,7 @@ public class App {
                 api.getSandboxContext().performRegistration(new SandboxRegisterRequest()).join();
             }
 
+            //Слушатель Web Socket Streaming API
             final var stopNotifier = new CompletableFuture<Void>();
             final var rxStreaming = Flowable.fromPublisher(api.getStreamingContext());
             final var rxSubscription = rxStreaming
@@ -50,10 +66,6 @@ public class App {
                     .doOnComplete(() -> stopNotifier.complete(null))
                     .forEach(event -> logger.info("Пришло новое событие из Streaming API\n" + event));
 
-            final var currentOrders = api.getOrdersContext().getOrders(null).join();
-            logger.info("Количество текущих заявок: " + currentOrders.size());
-            final var currentPositions = api.getPortfolioContext().getPortfolio(null).join();
-            logger.info("Количество текущих позиций: " + currentPositions.getPositions().size());
 
             for (int i = 0; i < parameters.tickers.length; i++) {
                 final var ticker = parameters.tickers[i];
@@ -72,22 +84,8 @@ public class App {
                     instrument = instrumentOpt.get();
                 }
 
-                logger.info("Получаем валютные балансы... ");
-                final var portfolioCurrencies = api.getPortfolioContext().getPortfolioCurrencies(null).join();
-
-                final var portfolioCurrencyOpt = portfolioCurrencies.getCurrencies().stream()
-                        .filter(pc -> pc.getCurrency() == instrument.getCurrency())
-                        .findFirst();
-
-                final CurrencyPosition portfolioCurrency;
-                if (portfolioCurrencyOpt.isEmpty()) {
-                    logger.error("Не нашлось нужной валютной позиции.");
-                    return;
-                } else {
-                    portfolioCurrency = portfolioCurrencyOpt.get();
-                    logger.info("Нужной валюты " + portfolioCurrency.getCurrency() + " на счету " + portfolioCurrency.getBalance().toPlainString());
-                }
-
+                //Оформление подписки на API
+                logger.info("Оформляем подписку... ");
                 api.getStreamingContext().sendRequest(StreamingRequest.subscribeCandle(instrument.getFigi(), candleInterval));
             }
 
@@ -96,6 +94,14 @@ public class App {
             logger.error("Что-то пошло не так.", ex);
         }
     }
+
+    /**
+     * Иницализация логгирования
+     *
+     * @author Mikhail Khrychev
+     * @version  1.0.0
+     * @since 30.04.2021
+     */
 
     private static org.slf4j.Logger initLogger() throws IOException {
         final var logManager = LogManager.getLogManager();
@@ -113,6 +119,14 @@ public class App {
 
         return org.slf4j.LoggerFactory.getLogger(App.class);
     }
+
+    /**
+     * Проверка входных аргументов
+     *
+     * @author Mikhail Khrychev
+     * @version  1.0.0
+     * @since 30.04.2021
+     */
 
     private static TradingParameters extractParams(final String[] args) throws IllegalArgumentException {
         if (args.length == 0) {
