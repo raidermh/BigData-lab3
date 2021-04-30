@@ -21,5 +21,36 @@ else
     echo "Maven already exists, skipping..."
 fi
 
+# Download adn Install Elasticsearch
+if [ ! -f elasticsearch-7.3.2-x86_64.rpm ]; then
+    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.3.2-x86_64.rpm
+    rpm -ivh elasticsearch-*
+    systemctl enable elasticsearch
+    systemctl start elasticsearch
+else
+    echo "Elasticsearch already exists, skipping..."
+fi
+
+# Download adn Install Kibana
+if [ ! -f kibana-7.3.2-x86_64.rpm ]; then
+    wget https://artifacts.elastic.co/downloads/kibana/kibana-7.3.2-x86_64.rpm
+    rpm rpm -ivh kibana-*
+    cp ~/BigData-lab3/example/configs/kibana/kibana.yml /etc/kibana/kibana.yml
+    systemctl enable kibana
+    systemctl start kibana
+else
+    echo "Kibana already exists, skipping..."
+fi
+
+# Download adn Install Logstash
+if [ ! -f logstash-7.3.2.rpm ]; then
+    wget wget https://artifacts.elastic.co/downloads/logstash/logstash-7.3.2.rpm
+    rpm rpm -ivh logstash-*
+
+else
+    echo "Logstash already exists, skipping..."
+fi
+
+
 
 
