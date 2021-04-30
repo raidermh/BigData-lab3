@@ -25,7 +25,7 @@ filebeat.inputs:
 
   # Paths that should be crawled and fetched. Glob based paths.
   paths:
-     - /home/raidermh/lab3str/invest-openapi-java-sdk/logs/appLogs
+     - ~/BigData-lab3/logs/appLogs
    # - /var/log/*.log
     #- c:\programdata\elasticsearch\logs\*
    # - /var/log/secure
