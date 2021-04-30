@@ -5,6 +5,9 @@ if [[ $# -ne 4 ]] ; then
     exit 1
 fi
 
+# Set Env JAVA_HOME
+export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+
 # Build
 cd ~/BigData-lab3
 mvn clean package
