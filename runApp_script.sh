@@ -14,4 +14,4 @@ mvn clean package
 
 # Run App
 java -jar ~/BigData-lab3/example/target/openapi-java-sdk-example-0.6-SNAPSHOT.jar $1 $2 $3 $4
-rm ~/BigData-lab3/logs/appLogs.lck
+rm ~/BigData-lab3/logs/appLogs
