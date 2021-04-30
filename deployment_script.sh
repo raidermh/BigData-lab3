@@ -44,7 +44,7 @@ fi
 
 # Download adn Install Logstash
 if [ ! -f logstash-7.3.2.rpm ]; then
-    wget wget https://artifacts.elastic.co/downloads/logstash/logstash-7.3.2.rpm
+    wget https://artifacts.elastic.co/downloads/logstash/logstash-7.3.2.rpm
     rpm -ivh logstash-*
     cp ~/BigData-lab3/example/configs/logstash/input.conf /etc/logstash/conf.d/input.conf
     cp ~/BigData-lab3/example/configs/logstash/filter.conf /etc/logstash/conf.d/filter.conf
