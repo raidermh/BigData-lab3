@@ -34,7 +34,7 @@ fi
 # Download adn Install Kibana
 if [ ! -f kibana-7.3.2-x86_64.rpm ]; then
     wget https://artifacts.elastic.co/downloads/kibana/kibana-7.3.2-x86_64.rpm
-    rpm rpm -ivh kibana-*
+    rpm -ivh kibana-*
     cp ~/BigData-lab3/example/configs/kibana/kibana.yml /etc/kibana/kibana.yml
     systemctl enable kibana
     systemctl start kibana
@@ -45,11 +45,34 @@ fi
 # Download adn Install Logstash
 if [ ! -f logstash-7.3.2.rpm ]; then
     wget wget https://artifacts.elastic.co/downloads/logstash/logstash-7.3.2.rpm
-    rpm rpm -ivh logstash-*
-
+    rpm -ivh logstash-*
+    cp ~/BigData-lab3/example/configs/logstash/input.conf /etc/logstash/conf.d/input.conf
+    cp ~/BigData-lab3/example/configs/logstash/filter.conf /etc/logstash/conf.d/filter.conf
+    cp ~/BigData-lab3/example/configs/logstash/output.conf /etc/logstash/conf.d/output.conf
+    systemctl enable logstash
+    systemctl start logstash
 else
     echo "Logstash already exists, skipping..."
 fi
+
+# Download adn Install Filebeat
+if [ ! -f filebeat-7.3.2-x86_64.rpm ]; then
+    wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.3.2-x86_64.rpm
+    rpm -ivh filebeat-*
+    cp ~/BigData-lab3/example/configs/filebeat/filebeat.yml /etc/filebeat/filebeat.yml
+    systemctl enable filebeat
+    systemctl start filebeat
+else
+    echo "Filebeat already exists, skipping..."
+fi
+
+# Build
+cd ~/BigData-lab3
+mvn clean package
+
+# Run App
+java -jar ~/BigData-lab3/example/target/openapi-java-sdk-example-0.6-SNAPSHOT.jar $1 $2 $3 $4
+rm ~/BigData-lab3/logs/appLogs.lck
 
 
 
